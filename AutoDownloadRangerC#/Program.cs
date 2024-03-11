@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.Text.RegularExpressions;
 
 class Program
 {
@@ -126,14 +125,19 @@ class Program
                         Directory.CreateDirectory(monthFolder);
 
                         string destinationFilePath = Path.Combine(monthFolder, Path.GetFileName(file));
-
-                        if (moveOrCopyChoice == 1)
+                        if (!File.Exists(destinationFilePath))
                         {
-                            File.Move(file, destinationFilePath);
-                        }
-                        else
+                            if (moveOrCopyChoice == 1)
+                            {
+                                File.Move(file, destinationFilePath);
+                            }
+                            else
+                            {
+                                File.Copy(file, destinationFilePath);
+                            }
+                        } else
                         {
-                            File.Copy(file, destinationFilePath);
+                            Console.WriteLine($"Le fichier {Path.GetFileName(file)} existe déjà dans le dossier de destination. Ignoré.");
                         }
                     }
                 }
@@ -381,22 +385,21 @@ class Program
 
     static bool IsGameInstaller(string fileName)
     {
-        return fileName.Contains("Steam", StringComparison.OrdinalIgnoreCase) ||
-               fileName.Contains("XboxInstaller", StringComparison.OrdinalIgnoreCase) ||
-               fileName.Contains("Epic Games", StringComparison.OrdinalIgnoreCase);
+        string pattern = @"\b(Steam|XboxInstaller|Epic Games|Ubisoft|Origin|GOG|Rockstar|Genshin|Battle.net|Bethesda|Minecraft|HumbleBundle|itch.io|PlayStation|Xbox|Nintendo|Garena|Riot Games|Square Enix|Valve|Activision|Capcom|Bandai Namco|SEGA|Konami|Tencent|Blizzard|2K Games|CD Projekt|Warner Bros|Disney)\b";
+        return Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase);
     }
 
     static bool IsCodingInstaller(string fileName)
     {
-        return fileName.StartsWith("vs_", StringComparison.OrdinalIgnoreCase) ||
-               fileName.Contains("JetBrains", StringComparison.OrdinalIgnoreCase) ||
-               fileName.Contains("IntelliJ", StringComparison.OrdinalIgnoreCase) ||
-               fileName.Contains("Notepad++", StringComparison.OrdinalIgnoreCase);
+        string pattern = @"\b(vs_|JetBrains|IntelliJ|Notepad\+\+|Eclipse|NetBeans|Xcode|Android Studio|CLion|PyCharm|WebStorm|Visual Studio Code|Sublime Text|Atom|Code::Blocks|Dev C\+\+|Qt Creator|Rider|RubyMine|PhpStorm|GoLand|RStudio|IntelliJ IDEA|Arduino IDE|Jupyter Notebook|Anaconda|MATLAB|Unity|Unreal Engine|GameMaker Studio|Godot Engine|Cocos2d|Flutter|React Native|Ionic|PhoneGap|Xamarin|Corona SDK)\b";
+        return Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase);
     }
+
 
     static bool IsPortableApp(string fileName)
     {
-        return fileName.Contains("Portable", StringComparison.OrdinalIgnoreCase);
+        string pattern = @"\bPortable\b";
+        return Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase);
     }
 
     static bool IsValidFileExtension(string extension)
